@@ -6,7 +6,7 @@ const config = {
     author: "EyeSeeTea team",
 
     entryPoints: {
-        plugin: "./src/plugin/Plugin.tsx",
+        plugin: "./src/Plugin.tsx",
     },
 };
 

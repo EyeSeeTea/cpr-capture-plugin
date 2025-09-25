@@ -1,29 +1,46 @@
 import React from "react";
 import styled from "styled-components";
+import { CircularLoader } from "@dhis2/ui";
 import { IDataEntryPluginProps } from "./Plugin.types";
 import { useExtraTexts } from "./hooks/useExtraTexts";
 import { formatTextWithBoldPrefix } from "./utils/formatTextWithBoldPrefix";
 
 const Plugin = ({ fieldsMetadata }: IDataEntryPluginProps) => {
-    const { formName, extraTexts } = useExtraTexts(fieldsMetadata);
+    const { formName, extraTexts, loading, error } = useExtraTexts(fieldsMetadata);
 
-    if (extraTexts.length === 0) {
-        return null;
+    if (loading) {
+        return (
+            <Center>
+                <CircularLoader />
+            </Center>
+        );
+    }
+
+    if (error) {
+        return <div>{error.message}</div>;
     }
 
     return (
         <Container>
             <FeedbackSection>
                 <FeedbackTitle>{`${formName} (feedback)`} </FeedbackTitle>
-                {extraTexts.map((text, index) => (
-                    <FeedbackText key={index}>{formatTextWithBoldPrefix(text)}</FeedbackText>
-                ))}
+                {extraTexts &&
+                    extraTexts.map((text, index) => (
+                        <FeedbackText key={index}>{formatTextWithBoldPrefix(text)}</FeedbackText>
+                    ))}
             </FeedbackSection>
         </Container>
     );
 };
 
 export default Plugin;
+
+const Center = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
 
 const Container = styled.div`
     width: 100%;

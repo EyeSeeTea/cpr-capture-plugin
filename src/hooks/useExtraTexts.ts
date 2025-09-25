@@ -1,45 +1,50 @@
-import { useDataQuery } from "@dhis2/app-runtime";
-import i18n from "../locales";
-import { fieldsMetadata } from "../Plugin.types";
 import { useMemo } from "react";
+import { fieldsMetadata } from "../Plugin.types";
+import { Constant, useConstantTranslations } from "./useConstantTranslations";
+import { ExtraTexts, TextCode, useDataStoreExtraTexts } from "./useDataStoreExtraTexts";
 
 type ExtraTextState = {
     formName?: string;
     extraTexts: string[];
     loading: boolean;
     error?: Error;
-    currentLanguage: string;
-};
-
-const DATA_STORE_QUERY = {
-    extraTexts: {
-        resource: "dataStore/extra-texts-for-options-capture-plugin/extraTexts",
-    },
 };
 
 export function useExtraTexts(fieldsMetadata: Record<string, fieldsMetadata>): ExtraTextState {
     const firstField = fieldsMetadata ? Object.keys(fieldsMetadata)[0] : null;
-    const { loading, error, data } = useDataQuery<ExtraTextResponse>(DATA_STORE_QUERY);
+    const { loading: loadingExtraTexts, error: errorExtraTexts, extraTexts } = useDataStoreExtraTexts();
 
-    const currentLanguage = useMemo(() => i18n.language || "en", [i18n.language]);
+    const codes = useMemo(
+        () => Object.values(extraTexts || {}).flatMap(texts => texts.filter(isCode).map(text => text.code)),
+        [extraTexts]
+    );
+
+    const { loading: loadingConstants, error: errorConstants, constants } = useConstantTranslations(codes);
 
     return {
         formName: fieldsMetadata[firstField]?.formName,
-        extraTexts: getTextsForLanguage(data, firstField, currentLanguage),
-        loading,
-        error,
-        currentLanguage,
+        extraTexts: getTextsForLanguage(extraTexts, firstField, constants),
+        loading: loadingExtraTexts || loadingConstants,
+        error: errorExtraTexts || errorConstants,
     };
 }
 
-type ExtraTextResponse = {
-    extraTexts: { [fieldId: string]: { default: string[]; [key: string]: string[] } };
-};
+function isCode(text: string | { code: string }): text is TextCode {
+    return typeof text === "object" && "code" in text;
+}
 
-function getTextsForLanguage(data: ExtraTextResponse, fieldId: string, language: string): string[] {
-    if (!data?.extraTexts[fieldId]) return [];
+function getTextsForLanguage(extraTexts: ExtraTexts, fieldId: string, constants: Constant[]): string[] {
+    if (!extraTexts[fieldId]) return [];
 
-    const fieldTexts = data.extraTexts[fieldId];
+    const fieldTexts = extraTexts[fieldId];
 
-    return fieldTexts[language] || fieldTexts.default || [];
+    return fieldTexts.map(text => getTextFromConstants(text, constants));
+}
+
+function getTextFromConstants(value: string | { code: string } | undefined, constants: Constant[]): string {
+    return typeof value === "string"
+        ? value
+        : value && constants.length > 0
+        ? constants.find(constant => constant.code === value.code)?.displayDescription || "-"
+        : "-";
 }
