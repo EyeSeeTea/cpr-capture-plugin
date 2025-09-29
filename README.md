@@ -1,19 +1,8 @@
 ## Extra texts for options capture plugin
 
+Show extra texts defined in the data store extra-texts-for-options-capture-plugin/extraTexts
 
-
-
-Validates and format a `dateOfBirth` field, and auto-populates the `age` field.
-
-This plugin does not include any visible UI element. It detects changes to the `dateOfBirth` field.
-
-- If it is invalid, it marks the field with an error.
-- If it is valid, calculates and sets the `age` field.
-
-A Date of Birth is considered valid if it is a valid date with the format `YYYY-MM-DD`, `MMDDYYYY` or `MM-DD-YYYY` and is not in the future.
-Date of Birth values reformatted as `YYYY-MM-DD` for consistency and compatibility with the backend.
-
-NOTE: To support only `YYYY-MM-DD`or `YYYYMMDD` formats, change `dateFormat` in `Plugin.tsx` and rebuild. In the future, this could be made configurable when adding the plugin in tracker-plugin-configurator app.
+Define a property by plugin field using as key the same that alias field
 
 ### How to use
 
@@ -34,15 +23,4 @@ NOTE: To support only `YYYY-MM-DD`or `YYYYMMDD` formats, change `dateFormat` in 
 2. Update `version` in `package.json` if required
 3. `yarn build`
 
-The output will be the `build/bundle/dob-formatting-age-calculation-capture-plugin-{version}.zip` file, ready to upload in App Management -> Manual Install.
-
-### Configuration
-
-The plugin expects three tracked entity attributes to be configured in the field map. Please configure this in the Tracker configurator app.
-
-Example
-
-| Attribute ID | Plugin alias | Type |
-| ------------ | ------------ | ---- |
-| w75KJ2mc4zz  | dateOfBirth  | Text |
-| zDhUuAYrxNC  | age          | Text |
+The output will be the `build/bundle/extra-texts-for-options-capture-plugin-{version}.zip` file, ready to upload in App Management -> Manual Install.

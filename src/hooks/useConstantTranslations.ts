@@ -21,7 +21,7 @@ export function useConstantTranslations(codes: string[]): ConstantsTranslationsS
         if (codes.length > 0) {
             refetch({ codes });
         }
-    }, [codes]);
+    }, [codes, refetch]);
 
     return {
         constants: data?.result.constants || [],

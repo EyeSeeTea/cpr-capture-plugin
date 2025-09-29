@@ -1,6 +1,7 @@
 import React from "react";
 import Plugin from "./Plugin";
 import classes from "./App.module.css";
+import i18n from "@dhis2/d2-i18n";
 
 const MyApp = () => (
     <div>
