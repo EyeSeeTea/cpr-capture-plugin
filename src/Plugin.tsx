@@ -44,15 +44,13 @@ const Center = styled.div`
 
 const Container = styled.div`
     width: 100%;
-    padding: 16px;
-    padding-bottom: 0;
+    padding: 16px 16px 0 16px;
 `;
 
 const FeedbackSection = styled.div`
     border: 1px solid #e0e5e9;
     border-radius: 4px;
-    padding: 12px;
-    padding-bottom: 0;
+    padding: 12px 12px 0 12px;
 `;
 
 const FeedbackTitle = styled.div`
