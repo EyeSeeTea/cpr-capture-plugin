@@ -44,9 +44,7 @@ export type IDataEntryPluginProps = {
     setContextFieldValue: (values: SetContextFieldValueProps) => void;
 };
 
-export const PluginFields = {
-    dateOfBirth: "dateOfBirth",
-    age: "age",
-} as const;
+// fields for this plugin are arbitrary strings used for dataStore configuration
+export type PluginFields = Record<string, string>;
 
-export type PluginField = (typeof PluginFields)[keyof typeof PluginFields];
+export type PluginField = PluginFields[keyof PluginFields];

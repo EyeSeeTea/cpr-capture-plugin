@@ -11,6 +11,48 @@ Define a property by plugin field using as key the same that alias field
 3. Follow the instructions in the Tracker configurator app to configure the plugin.
 4. Open the Capture app and create or edit the configured entity.
 
+### Configuration
+
+The plugin requires configuration in two places:
+
+#### 1. Tracker Plugin Configurator
+
+In the Tracker Plugin Configurator app, map a field to a **unique identifier string** (field alias):
+
+1. Open the Tracker Plugin Configurator app
+2. Select the program/tracker you want to configure
+3. Add the plugin above an specific field
+4. In Plugin Settings -> Attributes, map the field to a unique string identifier (e.g., `"myFieldId"`, `"pregnancyStatus"`, etc.)
+
+This field alias will be used as the key to match with the data store configuration.
+
+#### 2. Data Store Configuration
+
+Create an entry in the DHIS2 data store with the namespace `extra-texts-for-options-capture-plugin` and key `extraTexts`.
+
+The data store structure is a JSON object where:
+
+-   **Keys** are the field aliases defined in the Tracker Plugin Configurator
+-   **Values** are arrays of extra texts to display for that field
+
+Each extra text can be:
+
+-   A **direct string** (the text to display)
+-   A **reference to a constant** using the format `{ "code": "CONSTANT_CODE" }`. Using constants will allow for multi-language support and reusable text snippets across fields.
+
+**Example configuration:**
+
+```json
+{
+    "myFieldId": [
+        "This is a direct text message",
+        "Bold prefix: Regular text",
+        { "code": "MY_FIELD_FROM_CONSTANTS_CODE" }
+    ],
+    "pregnancyStatus": [{ "code": "PREGNANCY_OPTION" }, { "code": "PREGNANCY_OTHEROPTION" }]
+}
+```
+
 ### Development
 
 1. `yarn install`

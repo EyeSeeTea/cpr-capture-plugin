@@ -23,7 +23,7 @@ const Plugin = ({ fieldsMetadata }: IDataEntryPluginProps) => {
     return (
         <Container>
             <FeedbackSection>
-                <FeedbackTitle>{`${formName} (feedback)`} </FeedbackTitle>
+                <FeedbackTitle>{formName}</FeedbackTitle>
                 {extraTexts &&
                     extraTexts.map((text, index) => (
                         <FeedbackText key={index}>{formatTextWithBoldPrefix(text)}</FeedbackText>
@@ -44,18 +44,17 @@ const Center = styled.div`
 
 const Container = styled.div`
     width: 100%;
-    padding: 16px;
+    padding: 16px 16px 0 16px;
 `;
 
 const FeedbackSection = styled.div`
     border: 1px solid #e0e5e9;
     border-radius: 4px;
-    padding: 12px;
-    margin-bottom: 16px;
+    padding: 12px 12px 0 12px;
 `;
 
 const FeedbackTitle = styled.div`
-    font-size: 14px;
+    font-size: 1.25rem;
     color: #212934;
     margin-bottom: 8px;
 `;
