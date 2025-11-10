@@ -4,7 +4,7 @@ Custom Capture plugin for Central Planning and Reporting (DHIS2).
 
 ## Features
 
--   On a new enrollment, set the season from the URL (`... ?season=2025-2026& ...`). If the parameter is missing, the plugin sets the current season.
+-   On a new enrollment for an End‑of‑Season or Season Plan, the plugin sets the season attribute to the value extracted from the CPR App URL (...?season=2025-2026&...)
 
 ## Prerequisites
 
@@ -25,8 +25,8 @@ This produces: `./build/bundle/cpr-capture-plugin-VERSION.zip`.
 
 #### Install in DHIS2
 
-1. Upload `./build/bundle/cpr-capture-plugin-VERSION.zip` to your DHIS2 instance (App Management -> Manual Install)
-2. Open **Tracker Plugin Configurator** (install from the App Hub if needed).
+1. Build the plugin (`yarn build`) and upload `./build/bundle/cpr-capture-plugin-VERSION.zip` to your DHIS2 instance (App Management -> Manual Install)
+2. Open **Tracker Plugin Configurator** (install from the App Hub, if not already installed).
 3. Go to **Dashboard -> Form field plugins**.
 4. Click **Add configuration** (repeat for each program: END OF SEASON REPORT, SEASON PLAN TRAINING AND COACHING):
 
@@ -37,7 +37,7 @@ This produces: `./build/bundle/cpr-capture-plugin-VERSION.zip`.
 5. Click **Add Element**, search for the plugin, and **Add** it.
 6. In the plugin row, click **Edit Settings** and set:
 
-    - **Field**: `Season for PROGRAM`
+    - **Field**: `Season for [...]`
     - **Plugin Alias**: `season`
     - Click **Add**, then **Save**
 
@@ -50,7 +50,7 @@ The current UI does not support removing an attribute entry directly from the fo
 3. In the `elements` array, locate the TEA we want to hide (i.e. the **Season** attribute)
 4. Click **Save**.
 
-**NOTE:** When using the Tracker Plugin Configuration for a program, the registration form of the program (Attributes -> Create registration form -> Section) will be ignored. The layout that will be used is the one in the plugin configuration (persisted in the data store).
+**NOTE:** When using the Tracker Plugin Configuration for a program, the registration form of the program (**Attributes -> Create registration form -> Section**) will be ignored. The layout that will be used is the one in the plugin configuration (persisted in the data store).
 
 ## Development
 
