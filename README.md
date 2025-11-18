@@ -4,7 +4,10 @@ Custom Capture plugin for Central Planning and Reporting (DHIS2).
 
 ## Features
 
--   On a new enrollment for an End‑of‑Season or Season Plan, the plugin sets the season attribute to the value extracted from the CPR App URL (...?season=2025-2026&...)
+On a new enrollment for an End-of-Season or Season Plan:
+
+-   Set the season attribute to the value extracted from the CPR App URL.
+-   Check if an enrollment exists for the selected season, and show an error if that's the case.
 
 ## Prerequisites
 
@@ -70,4 +73,4 @@ yarn start
 http://localhost:8080/#/semi-annual-report?season=2025-2026&orgUnitId=ilhdId46wn1&teiId=DVETKZYY7mv
 ```
 
-Note: in development the plugin will not work, even when pointing at the production Capture plugin, because of cross-origin restrictions (host matches, port does not). A workaround would be to use `window.postMessage.` Currently, you must test in an installed app where the app and plugin run on the same origin.
+Note: In development, the plugin will not work—neither in DEV mode nor when installed locally, due to cross-origin restrictions (the host matches, but the port does not). The proper solution would be to use a communication channel between windows (`window.postMessage`). For now, test in an installed app where the main app and the plugin run under the same origin, or temporarily launch your browser with web security disabled (e.g., `chromium --disable-web-security`).

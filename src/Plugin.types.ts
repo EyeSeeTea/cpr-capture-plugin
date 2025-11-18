@@ -1,4 +1,4 @@
-export type fieldsMetadata = {
+export type FieldsMetadata = {
     id: string;
     name: string;
     shortName: string;
@@ -39,9 +39,18 @@ export type IDataEntryPluginProps = {
     errors: Record<string, string[]>;
     warnings: Record<string, string[]>;
     formSubmitted: boolean;
-    fieldsMetadata: Record<string, fieldsMetadata>;
+    orgUnitId: string;
+    viewMode: boolean;
+    config: Config;
+    fieldsMetadata: Record<string, FieldsMetadata>;
     setFieldValue: (values: SetFieldValueProps) => void;
     setContextFieldValue: (values: SetContextFieldValueProps) => void;
+};
+
+type Config = {
+    url: string | undefined;
+    appName: string;
+    appVersion: string;
 };
 
 // fields for this plugin are arbitrary strings used for dataStore configuration
