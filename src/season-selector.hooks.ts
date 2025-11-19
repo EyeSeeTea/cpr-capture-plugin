@@ -16,9 +16,9 @@
  * the attribute "season" in the plugin settings in the data store.
  */
 import React from "react";
-import { useEnrollmentStatusForSeason } from "./api.hooks";
-import { usePreventSeasonChangeAndShowWarning, useShowErrorIfEnrollmentExists } from "./ui-actions.hooks";
+import { useExistingEnrollmentValidation } from "./api.hooks";
 import { getMainAppWindow, getSeasonFromUrl } from "./url-helpers";
+import { Message } from "./Message";
 
 export type Options = {
     values: { season: string | undefined };
@@ -27,24 +27,47 @@ export type Options = {
     orgUnitId: string;
 };
 
-export type Message = {
-    level: "info" | "warning" | "error";
-    text: string;
-};
-
-export function useAutomaticSeasonSelection(options: Options): { message: Message | undefined } {
-    console.debug("[cpr-capture-plugin] props", options);
-    const [message, setMessage] = React.useState<Message>();
-    const season = getSeasonFromCprAppUrl();
-    const enrollmentExistsForSeason = useEnrollmentStatusForSeason(season, options);
-
-    usePreventSeasonChangeAndShowWarning(options, season, enrollmentExistsForSeason, setMessage);
-    useShowErrorIfEnrollmentExists(enrollmentExistsForSeason, setMessage);
-
-    return { message: message };
+export function useAutomaticSeasonSelection(options: Options): { messages: Message[] } {
+    console.debug("[cpr-capture-plugin]", options);
+    const season = useSeasonFromCprAppUrl();
+    useAutomaticSeasonSelector(options, season);
+    const errorMessage = useExistingEnrollmentValidation(season, options);
+    return { messages: errorMessage ? [errorMessage] : [] };
 }
 
-function getSeasonFromCprAppUrl(): string {
-    const appWindow = getMainAppWindow();
-    return getSeasonFromUrl(appWindow.location.href);
+function useAutomaticSeasonSelector(options: Options, season: string) {
+    const { setFieldValue } = options;
+    const selectedSeason = options.values.season;
+
+    React.useEffect(() => {
+        if (selectedSeason !== season) {
+            setFieldValue({ fieldId: "season", value: season });
+        }
+    }, [selectedSeason, season, setFieldValue]);
+}
+
+function useSeasonFromCprAppUrl(): string {
+    // The URL in the CPR app contains a season parameter.
+    // To react to changes in that parameter, we must listen for route changes.
+    // Therefore, we need to set up a timer to poll for updates.
+    const getSelectedSeason = React.useCallback(() => {
+        const appWindow = getMainAppWindow();
+        return getSeasonFromUrl(appWindow.location.href);
+    }, []);
+
+    return useInterval(getSelectedSeason, 1000);
+}
+
+function useInterval<T>(callback: () => T, delay: number): T {
+    const [value, setValue] = React.useState<T>(callback());
+
+    React.useEffect(() => {
+        const intervalId = setInterval(() => {
+            setValue(callback());
+        }, delay);
+
+        return () => clearInterval(intervalId);
+    }, [callback, delay]);
+
+    return value;
 }

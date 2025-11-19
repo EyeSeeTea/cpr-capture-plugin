@@ -1,19 +1,17 @@
 import React from "react";
 import { IDataEntryPluginProps } from "./Plugin.types";
-import { Message, Options, useAutomaticSeasonSelection } from "./season-selector.hooks";
+import { Options, useAutomaticSeasonSelection } from "./season-selector.hooks";
+import { Message } from "./Message";
 
 const Plugin = (props: IDataEntryPluginProps) => {
-    const { message } = useAutomaticSeasonSelection(props as unknown as Options);
-    const containerStyles = React.useMemo(() => getContainerStyles(message), [message]);
+    const { messages } = useAutomaticSeasonSelection(props as unknown as Options);
 
-    if (!message) return null;
-
-    return (
-        <div style={containerStyles}>
+    return messages.map(message => (
+        <div style={getContainerStyles(message)}>
             <div style={styles.icon}>{icons[message.level]}</div>
             <div style={styles.text}>{message.text}</div>
         </div>
-    );
+    ));
 };
 
 type MessageLevel = Message["level"];
@@ -35,9 +33,7 @@ const icons: Record<MessageLevel, string> = {
     error: "❌",
 };
 
-function getContainerStyles(message: Message | undefined): React.CSSProperties {
-    if (!message) return {};
-
+function getContainerStyles(message: Message): React.CSSProperties {
     return {
         padding: "12px 16px",
         border: `1px solid ${levelStyles[message.level].borderColor}`,

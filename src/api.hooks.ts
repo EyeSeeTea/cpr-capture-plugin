@@ -1,17 +1,26 @@
 import React from "react";
 import { useDataEngine } from "@dhis2/app-runtime";
 import { getParamFromUrl } from "./url-helpers";
+import i18n from "@dhis2/d2-i18n";
+import { Message } from "./Message";
 
 type Options = {
     fieldsMetadata: { season: { name: string } };
     orgUnitId: string;
 };
 
-export function useEnrollmentStatusForSeason(season: string, options: Options): boolean {
+export function useExistingEnrollmentValidation(season: string, options: Options): Message | undefined {
     const orgUnitId = options.orgUnitId;
     const trackedEntityAttribute = useGetTrackedEntityAttribute(options);
     const existingTei = useGetExistingEnrollment({ trackedEntityAttribute, season, orgUnitId });
-    return Boolean(existingTei?.teiId);
+    const enrollmentExistsForSeason = Boolean(existingTei?.teiId);
+
+    if (enrollmentExistsForSeason) {
+        return {
+            level: "error",
+            text: i18n.t("You cannot create a report for this season because a report already exists"),
+        };
+    }
 }
 
 function useGetTrackedEntityAttribute(options: Options): { id: string } | undefined {
@@ -70,7 +79,7 @@ function useGetExistingEnrollment(options: {
                 },
             },
         };
-    }, [teaId]);
+    }, [teaId, season, orgUnitId, programId]);
 
     type ApiResponse = { trackedEntities: { instances: Array<{ trackedEntity: string }> } };
     const [response, setResponse] = React.useState<ApiResponse>();
@@ -88,7 +97,7 @@ function useGetExistingEnrollment(options: {
 // Program is not currently exposed to plugins, so extract it from the Capture App URL
 function getProgramFromCaptureAppUrl(): string {
     const captureAppWindow = window.parent;
-    // Ex: http://localhost:7036/dhis-web-capture/index.html#/new?orgUnitId=RsyOE3vLiP6&programId=JsM6wTUTsL6
+    // Ex: http://localhost:8080/dhis-web-capture/index.html#/new?orgUnitId=RsyOE3vLiP6&programId=JsM6wTUTsL6
     const programId = getParamFromUrl(captureAppWindow.location.href, "programId");
     if (!programId) throw new Error("Program ID not found in Capture App URL");
     return programId;
