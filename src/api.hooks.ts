@@ -81,7 +81,6 @@ function useGetExistingEnrollment(options: {
         };
     }, [teaId, season, orgUnitId, programId]);
 
-    type ApiResponse = { trackedEntities: { instances: Array<{ trackedEntity: string }> } };
     const [response, setResponse] = React.useState<ApiResponse>();
 
     React.useEffect(() => {
@@ -90,9 +89,18 @@ function useGetExistingEnrollment(options: {
     }, [engine, getTrackedEntitiesQuery]);
 
     if (response) {
-        return { teiId: response.trackedEntities.instances[0]?.trackedEntity };
+        const resTeis = response.trackedEntities;
+        const teis = "instances" in resTeis ? resTeis.instances : resTeis.trackedEntities;
+        return { teiId: teis[0]?.trackedEntity };
     }
 }
+
+type ApiResponse = {
+    // < v42: returns prop "instances", v42+: returns prop "trackedEntities"
+    trackedEntities:
+        | { instances: Array<{ trackedEntity: string }> }
+        | { trackedEntities: Array<{ trackedEntity: string }> };
+};
 
 // Program is not currently exposed to plugins, so extract it from the Capture App URL
 function getProgramFromCaptureAppUrl(): string {
