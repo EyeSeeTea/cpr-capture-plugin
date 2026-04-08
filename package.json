@@ -1,7 +1,7 @@
 {
-    "name": "extra-texts-for-options-capture-plugin",
+    "name": "cpr-capture-plugin",
     "author": "EyeSeeTea team",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "",
     "license": "BSD-3-Clause",
     "private": true,

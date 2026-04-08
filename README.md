@@ -1,68 +1,76 @@
-## Extra texts for options capture plugin
+# CPR - Capture Plugin
 
-Show extra texts defined in the data store extra-texts-for-options-capture-plugin/extraTexts
+Custom Capture plugin for Central Planning and Reporting (DHIS2).
 
-Define a property by plugin field using as key the same that alias field
+## Features
 
-### How to use
+On a new enrollment for an End-of-Season or Season Plan:
 
-1. Install plugin `.zip` file
-2. Download and install the Tracker configurator app from the _App management application_ or from the [App hub](https://apps.dhis2.org/app/85d156b7-6e3f-43f0-be57-395449393f7d).
-3. Follow the instructions in the Tracker configurator app to configure the plugin.
-4. Open the Capture app and create or edit the configured entity.
+-   Set the season attribute to the value extracted from the CPR App URL.
+-   Check if an enrollment exists for the selected season, and show an error if that's the case.
 
-### Configuration
+## Prerequisites
 
-The plugin requires configuration in two places:
+-   Node.js >= v20 + Yarn
+-   Access to a DHIS2 2.40+ instance with the Capture app and Tracker Plugin Configurator
 
-#### 1. Tracker Plugin Configurator
+## Setup
 
-In the Tracker Plugin Configurator app, map a field to a **unique identifier string** (field alias):
+### Build the ZIP
 
-1. Open the Tracker Plugin Configurator app
-2. Select the program/tracker you want to configure
-3. Add the plugin above an specific field
-4. In Plugin Settings -> Attributes, map the field to a unique string identifier (e.g., `"myFieldId"`, `"pregnancyStatus"`, etc.)
-
-This field alias will be used as the key to match with the data store configuration.
-
-#### 2. Data Store Configuration
-
-Create an entry in the DHIS2 data store with the namespace `extra-texts-for-options-capture-plugin` and key `extraTexts`.
-
-The data store structure is a JSON object where:
-
--   **Keys** are the field aliases defined in the Tracker Plugin Configurator
--   **Values** are arrays of extra texts to display for that field
-
-Each extra text can be:
-
--   A **direct string** (the text to display)
--   A **reference to a constant** using the format `{ "code": "CONSTANT_CODE" }`. Using constants will allow for multi-language support and reusable text snippets across fields.
-
-**Example configuration:**
-
-```json
-{
-    "myFieldId": [
-        "This is a direct text message",
-        "Bold prefix: Regular text",
-        { "code": "MY_FIELD_FROM_CONSTANTS_CODE" }
-    ],
-    "pregnancyStatus": [{ "code": "PREGNANCY_OPTION" }, { "code": "PREGNANCY_OTHEROPTION" }]
-}
+```sh
+nvm use
+yarn install
+yarn build   # version is taken from package.json
 ```
 
-### Development
+This produces: `./build/bundle/cpr-capture-plugin-VERSION.zip`.
 
-1. `yarn install`
-2. `yarn start`
-3. Configure the plugin in Tracker Plugin Configurator with "Add Local Plugin" -> url: `http://localhost:3000/plugin.html`.
+#### Install in DHIS2
 
-### Generate a release
+1. Build the plugin (`yarn build`) and upload `./build/bundle/cpr-capture-plugin-VERSION.zip` to your DHIS2 instance (App Management -> Manual Install)
+2. Open **Tracker Plugin Configurator** (install from the App Hub, if not already installed).
+3. Go to **Dashboard -> Form field plugins**.
+4. Click **Add configuration** (repeat for each program: END OF SEASON REPORT, SEASON PLAN TRAINING AND COACHING):
 
-1. `yarn install`
-2. Update `version` in `package.json` if required
-3. `yarn build`
+    - **Tracker Programs -> Program**: select the program
+    - **Program stage**: leave unselected
+    - Click **Next**
 
-The output will be the `build/bundle/extra-texts-for-options-capture-plugin-{version}.zip` file, ready to upload in App Management -> Manual Install.
+5. Click **Add Element**, search for the plugin, and **Add** it.
+6. In the plugin row, click **Edit Settings** and set:
+
+    - **Field**: `Season for [...]`
+    - **Plugin Alias**: `season`
+    - Click **Add**, then **Save**
+
+#### Hide attributes from the native form
+
+The current UI does not support removing an attribute entry directly from the form layout, but we can hide it by editing the data entry form configuration:
+
+1. Open **Datastore Management** app.
+2. In the left sidebar, navigate to: `capture -> dataEntryForms -> PROGRAM_ID`.
+3. In the `elements` array, locate the TEA we want to hide (i.e. the **Season** attribute)
+4. Click **Save**.
+
+**NOTE:** When using the Tracker Plugin Configuration for a program, the registration form of the program (**Attributes -> Create registration form -> Section**) will be ignored. The layout that will be used is the one in the plugin configuration (persisted in the data store).
+
+## Development
+
+1. Start the dev server:
+
+```sh
+yarn start
+```
+
+2. In **Tracker Plugin Configurator**, click **Add Local Plugin** and set:
+
+    - **Plugin Launch URL**: `http://localhost:3000/plugin.html`
+
+3. Make sure the app URL includes the `season` parameter when creating a new enrollment, for example:
+
+```
+http://localhost:8080/#/semi-annual-report?season=2025-2026&orgUnitId=ilhdId46wn1&teiId=DVETKZYY7mv
+```
+
+Note: In development, the plugin will not work—neither in DEV mode nor when installed locally, due to cross-origin restrictions (the host matches, but the port does not). The proper solution would be to use a communication channel between windows (`window.postMessage`). For now, test in an installed app where the main app and the plugin run under the same origin, or temporarily launch your browser with web security disabled (e.g., `chromium --disable-web-security`).
