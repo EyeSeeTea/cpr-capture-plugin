@@ -1,5 +1,5 @@
 import React from "react";
-import { useDataEngine } from "@dhis2/app-runtime";
+import { useConfig, useDataEngine } from "@dhis2/app-runtime";
 import { getParamFromUrl } from "./url-helpers";
 import i18n from "@dhis2/d2-i18n";
 import { Message } from "./Message";
@@ -61,8 +61,11 @@ function useGetExistingEnrollment(options: {
     const { trackedEntityAttribute: tea, season, orgUnitId } = options;
 
     const engine = useDataEngine();
+    const { serverVersion } = useConfig();
     const programId = getProgramFromCaptureAppUrl();
     const teaId = tea?.id;
+    // < v41: only "orgUnit" is supported, v41: both (but not together), v42+: only "orgUnits"
+    const orgUnitParam = serverVersion && serverVersion.minor < 41 ? "orgUnit" : "orgUnits";
 
     const getTrackedEntitiesQuery = React.useMemo(() => {
         if (!teaId) return;
@@ -73,13 +76,13 @@ function useGetExistingEnrollment(options: {
                 params: {
                     fields: "trackedEntity",
                     filter: `${teaId}:eq:${season}`,
-                    orgUnit: orgUnitId,
+                    [orgUnitParam]: orgUnitId,
                     // Note: some TEIs are only returned when queried by trackedEntityType
                     program: programId,
                 },
             },
         };
-    }, [teaId, season, orgUnitId, programId]);
+    }, [teaId, season, orgUnitId, orgUnitParam, programId]);
 
     const [response, setResponse] = React.useState<ApiResponse>();
 
